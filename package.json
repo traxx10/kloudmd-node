@@ -1,14 +1,20 @@
 {
   "name": "kloudmd-scheduler",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "migrate": "tsx db/migrate.ts",
+    "show:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@hono/node-server": "^1.11.4",
+    "@types/better-sqlite3": "^7.6.10",
+    "better-sqlite3": "^11.0.0",
+    "drizzle-orm": "^0.31.2",
     "hono": "^4.4.7"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
+    "drizzle-kit": "^0.22.7",
     "tsx": "^4.7.1"
   }
 }
