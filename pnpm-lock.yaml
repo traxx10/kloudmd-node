@@ -14,6 +14,9 @@ dependencies:
   better-sqlite3:
     specifier: ^11.0.0
     version: 11.0.0
+  dayjs:
+    specifier: ^1.11.11
+    version: 1.11.11
   drizzle-orm:
     specifier: ^0.31.2
     version: 0.31.2(@types/better-sqlite3@7.6.10)(better-sqlite3@11.0.0)
@@ -715,6 +718,10 @@ packages:
 
   /chownr@1.1.4:
     resolution: {integrity: sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==}
+    dev: false
+
+  /dayjs@1.11.11:
+    resolution: {integrity: sha512-okzr3f11N6WuqYtZSvm+F776mB41wRZMhKP+hc34YdW+KmtYYK9iqvHSwo2k9FEH3fhGXvOPV6yz2IcSrfRUDg==}
     dev: false
 
   /debug@4.3.5:

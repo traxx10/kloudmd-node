@@ -3,12 +3,14 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "migrate": "tsx db/migrate.ts",
+    "generate": "pnpm drizzle-kit generate",
     "show:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@hono/node-server": "^1.11.4",
     "@types/better-sqlite3": "^7.6.10",
     "better-sqlite3": "^11.0.0",
+    "dayjs": "^1.11.11",
     "drizzle-orm": "^0.31.2",
     "hono": "^4.4.7"
   },

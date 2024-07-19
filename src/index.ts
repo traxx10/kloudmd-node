@@ -1,13 +1,127 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
+import { db } from '../db/db';
+import { schedules } from '../db/schema';
+import {
+  and,
+  between,
+  eq,
+  gte,
+  isNotNull,
+  isNull,
+  lte,
+  or,
+  sql,
+} from 'drizzle-orm';
 
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 const app = new Hono();
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!');
+app.get('/', async (c) => {
+  const { start_date, end_date, project_id } = c.req.query();
+  const startDate = start_date;
+  const endDate = end_date || '9999-12-31';
+
+  const data = await db
+    .select({
+      staff_id: schedules.staff_id,
+      project_id: schedules.project_id,
+      id: schedules.id,
+      available: schedules.available,
+      clock_in: schedules.clock_in,
+      clock_out: schedules.clock_out,
+      day: schedules.day,
+      recurrence: schedules.recurrence,
+      recurrence_end: schedules.recurrence_end,
+      recurrence_interval: schedules.recurrence_interval,
+      recurrence_start: schedules.recurrence_start,
+      resource_id: schedules.resource_id,
+      unavailable_reason: schedules.unavailable_reason,
+      debug_julian_end: sql`julianday(${endDate})`.as('debug_julian_end'),
+      debug_julian_start: sql`julianday(${schedules.recurrence_start})`.as(
+        'debug_julian_start'
+      ),
+      debug_julian_diff:
+        sql`julianday(${endDate}) - julianday(${schedules.recurrence_start})`.as(
+          'debug_julian_diff'
+        ),
+      debug_julian_weeks:
+        sql`(julianday(${endDate}) - julianday(${schedules.recurrence_start})) / 7`.as(
+          'debug_julian_weeks'
+        ),
+      debug_julian_mod: sql`CASE
+        WHEN ${schedules.recurrence_interval} IS NOT NULL THEN
+          (julianday(${endDate}) - julianday(${schedules.recurrence_start})) / 7 % 
+          CASE 
+            WHEN ${schedules.recurrence_interval} IS NULL THEN 1
+            ELSE ${schedules.recurrence_interval}
+          END
+        ELSE NULL
+      END`.as('debug_julian_mod'),
+    })
+    .from(schedules)
+    .where(
+      or(
+        // For recurring events
+        and(
+          eq(schedules.project_id, Number(project_id)),
+          eq(schedules.available, true),
+          isNotNull(schedules.recurrence_interval),
+          lte(schedules.recurrence_start, endDate),
+
+          or(
+            eq(schedules.recurrence_interval, 1),
+            sql`(julianday(${endDate}) - julianday(${schedules.recurrence_start})) / 7 % 
+              CASE 
+                WHEN ${schedules.recurrence_interval} IS NULL THEN 1
+                ELSE ${schedules.recurrence_interval}
+              END = 0`
+          )
+        ),
+        // For non-recurring events
+        and(
+          eq(schedules.project_id, Number(project_id)),
+          eq(schedules.available, true),
+          isNull(schedules.recurrence_interval),
+          between(schedules.clock_in, startDate, endDate)
+        )
+      )
+    );
+
+  return c.json({
+    results: data.length,
+    data: data.map((item) => ({
+      formattedDate: dayjs(item.clock_in).format('dddd'),
+      ...item,
+    })),
+  });
 });
 
-const port = 3000;
+app.post('/', async (c) => {
+  const body = (await c.req.json()) as {
+    staff_id: number;
+    project_id: number;
+    available: boolean;
+    clock_in: string;
+    clock_out: string;
+    day: number;
+    recurrence: string;
+    recurrence_end: string;
+    recurrence_interval: number;
+    recurrence_start: string;
+    unavailable_reason: string;
+  };
+
+  await db.insert(schedules).values(body);
+
+  return c.json(body);
+});
+
+const port = 3001;
+
 console.log(`Server is running on port ${port}`);
 
 serve({

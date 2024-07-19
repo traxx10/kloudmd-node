@@ -16,17 +16,17 @@ import { text, integer, sqliteTable } from 'drizzle-orm/sqlite-core';
 // unavailable_reason: 'test';
 
 export const schedules = sqliteTable('schedules', {
+  staff_id: integer('staff_id'),
+  project_id: integer('project_id'),
   id: integer('id').primaryKey(),
   available: integer('available', { mode: 'boolean' }).default(true),
   clock_in: text('timestamp'),
   clock_out: text('timestamp'),
   day: integer('day').notNull(),
-  location_id: text('location_id'),
   recurrence: text('recurrence'),
   recurrence_end: text('recurrence_end'),
   recurrence_interval: integer('recurrence_interval'),
   recurrence_start: text('recurrence_start'),
   resource_id: text('resource_id'),
-  staff_id: text('staff_id'),
   unavailable_reason: text('unavailable_reason'),
 });

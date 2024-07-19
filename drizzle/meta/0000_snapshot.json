@@ -1,12 +1,26 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "1df2e730-0cf9-415b-a788-d6c3fe80b1e4",
+  "id": "d5f5b51d-3a12-4ec7-b80b-d1e7e1b95564",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "schedules": {
       "name": "schedules",
       "columns": {
+        "staff_id": {
+          "name": "staff_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "project_id": {
+          "name": "project_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "id": {
           "name": "id",
           "type": "integer",
@@ -34,13 +48,6 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "location_id": {
-          "name": "location_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         },
         "recurrence": {
@@ -73,13 +80,6 @@
         },
         "resource_id": {
           "name": "resource_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "staff_id": {
-          "name": "staff_id",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
