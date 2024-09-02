@@ -13,12 +13,23 @@ import {
   or,
   sql,
 } from 'drizzle-orm';
+import { cors } from 'hono/cors';
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(utc);
+
 const app = new Hono();
+
+app.use(
+  '*',
+  cors({
+    origin: '*',
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 app.get('/', async (c) => {
   const { start_date, end_date, project_id } = c.req.query();
@@ -118,6 +129,22 @@ app.post('/', async (c) => {
   await db.insert(schedules).values(body);
 
   return c.json(body);
+});
+
+app.all('/fuse', async (c) => {
+  const data = await c.req.json();
+
+  const records = data.records;
+
+  console.log(data);
+  console.log(records);
+
+  return c.json({
+    message: 'success',
+    batch: {
+      status: 'completed',
+    },
+  });
 });
 
 const port = 3001;
