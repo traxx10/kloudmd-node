@@ -32,9 +32,7 @@ app.use(
 );
 
 app.get('/', async (c) => {
-  const { start_date, end_date, project_id } = c.req.query();
-  const startDate = start_date;
-  const endDate = end_date || '9999-12-31';
+  const { startDate, endDate, projectId } = c.req.query();
 
   const data = await db
     .select({
@@ -78,7 +76,8 @@ app.get('/', async (c) => {
       or(
         // For recurring events
         and(
-          eq(schedules.project_id, Number(project_id)),
+          eq(schedules.project_id, Number(projectId)),
+          isNull(schedules.recurrence_end),
           eq(schedules.available, true),
           isNotNull(schedules.recurrence_interval),
           lte(schedules.recurrence_start, endDate),
@@ -94,9 +93,9 @@ app.get('/', async (c) => {
         ),
         // For non-recurring events
         and(
-          eq(schedules.project_id, Number(project_id)),
+          eq(schedules.project_id, Number(projectId)),
           eq(schedules.available, true),
-          isNull(schedules.recurrence_interval),
+          // isNull(schedules.recurrence_interval),
           between(schedules.clock_in, startDate, endDate)
         )
       )

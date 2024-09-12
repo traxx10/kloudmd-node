@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "d5f5b51d-3a12-4ec7-b80b-d1e7e1b95564",
+  "id": "1bb4ee1d-ec1a-4968-9cd7-eb26d03b2ad2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "schedules": {
@@ -36,8 +36,15 @@
           "autoincrement": false,
           "default": true
         },
-        "timestamp": {
-          "name": "timestamp",
+        "clock_in": {
+          "name": "clock_in",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "clock_out": {
+          "name": "clock_out",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
