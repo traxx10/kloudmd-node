@@ -125,25 +125,72 @@ app.post('/', async (c) => {
     unavailable_reason: string;
   };
 
+  // Check if there's a schedule on the recurrence_start and the same day
+  const existingSchedule = await db
+    .select()
+    .from(schedules)
+    .where(
+      and(
+        eq(schedules.staff_id, body.staff_id),
+        eq(schedules.project_id, body.project_id),
+        eq(schedules.recurrence_start, body.recurrence_start),
+        eq(schedules.day, body.day)
+      )
+    )
+    .limit(1);
+
+  // If a schedule exists, delete it
+  if (existingSchedule.length > 0) {
+    await db
+      .delete(schedules)
+      .where(
+        and(
+          eq(schedules.staff_id, body.staff_id),
+          eq(schedules.project_id, body.project_id),
+          eq(schedules.recurrence_start, body.recurrence_start),
+          eq(schedules.day, body.day)
+        )
+      );
+  }
+
+  // Insert the new schedule
   await db.insert(schedules).values(body);
 
   return c.json(body);
 });
 
-app.all('/fuse', async (c) => {
-  const data = await c.req.json();
+app.put('/:id', async (c) => {
+  const id = c.req.param('id');
+  const body = (await c.req.json()) as {
+    staff_id?: number;
+    project_id?: number;
+    available?: boolean;
+    clock_in?: string;
+    clock_out?: string;
+    day?: number;
+    recurrence?: string;
+    recurrence_end?: string;
+    recurrence_interval?: number;
+    recurrence_start?: string;
+    unavailable_reason?: string;
+  };
 
-  const records = data.records;
+  // Update the schedule with the given id
+  await db
+    .update(schedules)
+    .set(body)
+    .where(eq(schedules.id, Number(id)));
 
-  console.log(data);
-  console.log(records);
+  return c.json({ message: 'Schedule updated successfully' });
+});
 
-  return c.json({
-    message: 'success',
-    batch: {
-      status: 'completed',
-    },
-  });
+app.delete('/:id', async (c) => {
+  const id = c.req.param('id');
+
+  // Delete the schedule with the given id
+  await db.delete(schedules).where(eq(schedules.id, Number(id)));
+
+  return c.json({ message: 'Schedule deleted successfully' });
 });
 
 const port = 3001;
